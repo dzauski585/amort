@@ -9,6 +9,7 @@ def main():
     i = int(input("Rate: "))
     n = int(input("Length in years: "))
     
+    
     #Constants for testing
     #p = 500000
     #i = 8
@@ -28,7 +29,11 @@ def main():
     print(tabulate(df, headers = 'keys', tablefmt = 'psql'))
     
     create_chart(df)
-
+    
+    extra_payments = extra_amort(p,i,n)
+    extradf = pd.DataFrame(extra_payments)
+    print(tabulate(extradf, headers = 'keys', tablefmt = 'psql'))
+    #create_excel(extradf) # make new excel file if needed
     
 def amort(p, i ,n):
     payments = []
@@ -48,8 +53,29 @@ def amort(p, i ,n):
         n = n - 1
         
     return payments
-          
+
+def extra_amort(p, i ,n): #function for adding extra payments
+    extra_payments = []
+    e = 2500 #extra payment amount change as needed
     
+    while p > 0 :
+        a = total_monthly_amount(p,i,n)
+                
+        b = calculate_monthly_interest(p,i)
+                
+        p = p - (a - b) - e
+                        
+        extra_payments.append({'Month' : n,
+            'Payment' : a,
+            'extra' : e, 
+            'Principle' : (a-b),
+            'Interest' : b,
+            'Balance' : p })
+                
+        n = n - 1
+        
+    return extra_payments
+ 
 def create_chart(df): # function for the graph
     sns.lineplot(data=df['Balance'], color='g').set_title("Amortization Table") #line one
     ax2 = plt.twinx()
