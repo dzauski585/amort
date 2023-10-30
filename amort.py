@@ -21,8 +21,13 @@ def main():
     #Do the amortization, print a table, and display a graph
     payments = amort(p, i, n)
     
-    df = create_chart(payments)
+    df = pd.DataFrame(payments) #make a dataframe from the amortization table to utilzie pandas functions
+    
+    create_excel(df)
+    
     print(tabulate(df, headers = 'keys', tablefmt = 'psql'))
+    
+    create_chart(df)
 
     
 def amort(p, i ,n):
@@ -30,7 +35,7 @@ def amort(p, i ,n):
     while n > 0 :
         a = total_monthly_amount(p,i,n)
         
-        b =calculate_monthly_interest(p,i)
+        b = calculate_monthly_interest(p,i)
         
         p = p - (a - b)
                  
@@ -45,15 +50,12 @@ def amort(p, i ,n):
     return payments
           
     
-def create_chart(payments):
-    df= pd.DataFrame(payments)
-        
-    sns.lineplot(data=df['Balance'], color='g').set_title("Amortization Table")
+def create_chart(df): # function for the graph
+    sns.lineplot(data=df['Balance'], color='g').set_title("Amortization Table") #line one
     ax2 = plt.twinx()
-    sns.lineplot(data=df['Principle'], ax = ax2, color='b') 
-    sns.lineplot(data=df['Interest'], ax = ax2, color='r') 
-    plt.show()   
-    return df  
+    sns.lineplot(data=df['Principle'], ax = ax2, color='b') #line two ax changes the type of plot allowed in seabord to matplotlib multi graphs 
+    sns.lineplot(data=df['Interest'], ax = ax2, color='r')  #line three
+    plt.show()    
 
 def interest_percentage_convert(i):
     i = float((i / 100)) #convert percentage to a decimal
@@ -73,6 +75,15 @@ def total_monthly_amount(p, i, n):
 def calculate_monthly_interest(p, i):
     a = p * i
     return round(a, 2)  
+
+def create_excel(df): #takes the dateframe and makes it into excel file with pandas
+    # Create a DataFrame from the loan schedule
+    df = pd.DataFrame(df)
+
+    # Export DataFrame to Excel
+    output_file = 'loan_schedule.xlsx'
+    df.to_excel(output_file, index=False)
+
   
 if __name__ == "__main__":
     main()
